@@ -10,6 +10,7 @@ const isCleanMocks = cypressConfig.cleanMocks || false;
 const isForceRecord = cypressConfig.forceRecord || false;
 const recordTests = cypressConfig.recordTests || [];
 const blacklistRoutes = cypressConfig.blacklistRoutes || [];
+const whitelistlistRoutes = cypressConfig.whitelistRoutes || [];
 const whitelistHeaders = cypressConfig.whitelistHeaders || [];
 const supportedMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD'];
 
@@ -64,8 +65,14 @@ module.exports = function autoRecord() {
       // Filter out blacklisted routes from being recorded and logged
       whitelist: xhr => {
         if(xhr.url) {
-          // TODO: Use blobs
-          return blacklistRoutes.some(route => xhr.url.includes(route));
+          // If blacklist routes are present they take precedence
+          if (blacklistRoutes && blacklistRoutes.length) {
+            return blacklistRoutes.some(route => xhr.url.includes(route));
+          }
+
+          if (whitelistlistRoutes && whitelistlistRoutes.length) {
+            return !whitelistlistRoutes.some(route => xhr.url.includes(route));
+          }
         }
       },
       // Here we handle all requests passing through Cypress' server
